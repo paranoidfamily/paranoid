@@ -21,7 +21,7 @@ In PowerShell, as your normal user:
 irm https://www.paranoid.family/install.ps1 | iex
 ```
 
-[`installer/install.ps1`](installer/install.ps1) installs Node.js 24, this runtime, Tor and Ollama with a local model into `%LOCALAPPDATA%ProgramsPARANOID`, checking every download (SHA-256 against the published sums; Ollama by its Authenticode signature), then adds Start Menu shortcuts, start at sign-in and an uninstall entry. Settings, keys and Tor data stay in `%APPDATA%paranoid`.
+[`installer/install.ps1`](installer/install.ps1) installs Node.js 24, this runtime, Tor and Ollama with a local model into `%LOCALAPPDATA%\Programs\PARANOID`, checking every download (SHA-256 against the published sums; Ollama by its Authenticode signature), then adds Start Menu shortcuts, start at sign-in and an uninstall entry. Settings, keys and Tor data stay in `%APPDATA%\paranoid`.
 
 ## Run
 
