@@ -45,3 +45,24 @@ jobs:
           node --test --test-reporter=spec --test-name-pattern="live: real bubblewrap" test/bwrap.test.ts | tee live.txt
           if grep -q "# SKIP" live.txt; then echo "live bubblewrap test was skipped"; exit 1; fi
           grep -q "✔ live: real bubblewrap blocks network and host files" live.txt
+
+  tor:
+    name: live Tor isolation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Start Tor (Ubuntu package; SocksPort 9050, IsolateSOCKSAuth is on by default)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq tor
+          sudo systemctl start tor
+          for i in $(seq 1 90); do
+            if sudo journalctl -u tor@default --no-pager | grep -q "Bootstrapped 100%"; then echo "Tor bootstrapped"; break; fi
+            sleep 2
+          done
+      - name: Route through PARANOID's SOCKS5 code and check the exits
+        run: node scripts/verify-tor.ts 9050
