@@ -1,0 +1,5 @@
+* text=auto eol=lf
+vendor/** -text
+*.wasm binary
+*.zkey binary
+*.png binary

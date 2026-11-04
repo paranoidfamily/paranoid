@@ -1,0 +1,19 @@
+{
+  "name": "paranoid-local",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PARANOID local privacy runtime: loopback daemon, local sanitizer, Tor isolation, bounded cover traffic, chat UI.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node src/main.ts",
+    "test": "node --test \"test/*.test.ts\""
+  },
+  "dependencies": {
+    "@jitl/quickjs-wasmfile-release-sync": "0.32.0",
+    "quickjs-emscripten-core": "0.32.0"
+  }
+}

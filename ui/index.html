@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="paranoid-token" content="__PARANOID_TOKEN__">
+<title>PARANOID</title>
+<link rel="icon" href="/ui/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ui/style.css">
+</head>
+<body>
+<header class="top">
+  <a class="logo" href="/"><i></i>PARANOID</a>
+  <div class="seg" id="profiles" role="group" aria-label="Privacy profile">
+    <button data-p="standard">Standard</button><button data-p="private">Private</button><button data-p="paranoid">Paranoid</button>
+  </div>
+  <div class="pills" id="pills"></div>
+  <span class="sp"></span>
+  <button class="btn" id="open-settings">Settings</button>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <button class="btn primary wide" id="new-chat">New conversation</button>
+    <div class="convs" id="convs"></div>
+    <p class="side-note">Conversations live in this daemon's memory only. Each one has its own Tor circuit and is wiped when you end it or after 2 hours idle.</p>
+  </aside>
+
+  <main class="chat">
+    <div class="banner" id="banner" hidden></div>
+    <div class="thread" id="thread">
+      <div class="empty-state" id="empty">
+        <h1>Powerful AI. Minimal exposure.</h1>
+        <p>Your prompt is sanitized on this machine, shown to you for approval, then sent through the layers your profile requires. Nothing is sent if a required layer is missing.</p>
+      </div>
+    </div>
+
+    <section class="review" id="review" hidden>
+      <div class="review-head">
+        <span class="tag">Review before sending</span>
+        <span class="hint" id="review-meta"></span>
+        <span class="sp"></span>
+        <button class="link" id="review-cancel">Cancel</button>
+      </div>
+      <div class="review-grid">
+        <div>
+          <div class="lbl">What the provider will receive <span class="hint">(editable)</span></div>
+          <textarea id="review-text" spellcheck="false"></textarea>
+        </div>
+        <div>
+          <div class="lbl">Stays on this device</div>
+          <table class="ph"><tbody id="review-map"></tbody></table>
+          <p class="hint" id="review-empty">No identifiers replaced.</p>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="review-send">Send sanitized</button>
+        <button class="btn danger" id="review-bypass" hidden>Send original (standard mode)</button>
+      </div>
+    </section>
+
+    <form class="composer" id="composer">
+      <textarea id="input" rows="3" placeholder="Ask anything. Personal details are removed before anything leaves this machine." spellcheck="true"></textarea>
+      <div class="row">
+        <span class="hint" id="route-hint"></span>
+        <span class="sp"></span>
+        <label class="check" title="The model may run JavaScript in the WebAssembly sandbox, and shell scripts in bubblewrap when it passes its isolation probe: no network, no user files, short time limits."><input type="checkbox" id="agent"> Sandbox tools</label>
+        <button class="btn" type="button" id="stop" hidden>Stop</button>
+        <button class="btn primary" type="submit" id="go">Review</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<div class="drawer" id="settings" hidden>
+  <div class="drawer-in">
+    <div class="drawer-head"><h2>Settings</h2><span class="sp"></span><button class="link" id="close-settings">Close</button></div>
+
+    <section class="card">
+      <h3>Remote model</h3>
+      <p class="hint">Inference goes to OpenRouter with your own API key, stored encrypted on this machine (Windows DPAPI). OpenRouter can link requests made with this key to your account.</p>
+      <div class="row"><input type="password" id="key" placeholder="sk-or-..." autocomplete="off"><button class="btn" id="save-key">Save key</button><button class="link" id="del-key">Remove</button></div>
+      <div class="row"><input id="model-filter" placeholder="Filter models"><select id="model"></select></div>
+      <p class="hint" id="model-hint"></p>
+    </section>
+
+    <section class="card">
+      <h3>Local sanitizer</h3>
+      <p class="hint" id="san-status"></p>
+      <div class="row"><select id="san-model"></select>
+        <div class="seg small" id="strict"><button data-s="minimal">Rules only</button><button data-s="standard">Standard</button><button data-s="strict">Strict</button></div></div>
+    </section>
+
+    <section class="card">
+      <h3>Tor</h3>
+      <p class="hint" id="tor-status"></p>
+      <div class="row"><button class="btn" id="tor-start">Start / verify Tor</button></div>
+    </section>
+
+    <section class="card">
+      <h3>Cover traffic</h3>
+      <p class="hint">Decoy GET requests through Tor to the HTTPS sites you list, never with your content and never to a paid API. Bounded by the budgets below and stopped automatically. It makes simple timing and volume analysis harder; it does not defeat an observer who sees most of the network.</p>
+      <textarea id="cover-urls" rows="3" placeholder="https://en.wikipedia.org/wiki/Special:Random&#10;one HTTPS URL per line"></textarea>
+      <div class="grid4">
+        <label>Per minute<input type="number" id="cv-rate" min="0.5" max="60" step="0.5"></label>
+        <label>Workers<input type="number" id="cv-conc" min="1" max="8"></label>
+        <label>Max requests / h<input type="number" id="cv-req" min="1" max="3600"></label>
+        <label>Max MB / h<input type="number" id="cv-mb" min="1" max="1024"></label>
+        <label>Auto-stop (min)<input type="number" id="cv-stop" min="1" max="1440"></label>
+      </div>
+      <div class="row"><button class="btn" id="cv-save">Save</button><button class="btn" id="cv-start">Start</button><button class="btn" id="cv-stop-btn">Stop</button><span class="hint" id="cv-status"></span></div>
+    </section>
+
+    <section class="card">
+      <h3>zkAPI private payment</h3>
+      <p class="hint">Official zkAPI browser wallet. Your private notes stay in this page's browser storage on this machine; protocol, indexer and RPC requests go through Tor. Currently the Sepolia test network only, with development proving keys: test ETH, never real funds. The operator requires a testnet password.</p>
+      <p class="hint" id="zk-status">Not connected.</p>
+      <div class="row"><button class="btn" id="zk-init">Start wallet</button><button class="btn" id="zk-connect">Connect MetaMask</button><label class="check"><input type="checkbox" id="zk-use"> Pay requests with zkAPI</label></div>
+      <div class="row"><input id="zk-amount" type="text" inputmode="decimal" placeholder="0.002"><button class="btn" id="zk-deposit">Deposit Sepolia ETH</button><button class="btn" id="zk-withdraw">Withdraw all</button></div>
+      <div class="row" id="zk-pw" hidden><input type="password" id="zk-pw-input" placeholder="Testnet password" autocomplete="off"><button class="btn" id="zk-pw-ok">Unlock</button><button class="link" id="zk-pw-cancel">Cancel</button></div>
+      <p class="hint" id="zk-op"></p>
+    </section>
+
+    <section class="card">
+      <h3>Agent sandbox</h3>
+      <p class="hint" id="sbx-status"></p>
+      <table class="ph"><tbody id="sbx-policy"></tbody></table>
+      <div class="row"><label class="check"><input type="checkbox" id="bw-on"> bubblewrap shell (run_shell)</label></div>
+      <p class="hint" id="bw-status"></p>
+      <table class="ph"><tbody id="bw-policy"></tbody></table>
+      <p class="hint" id="pay-status"></p>
+    </section>
+  </div>
+</div>
+
+<script src="/ui/app.js"></script>
+</body>
+</html>

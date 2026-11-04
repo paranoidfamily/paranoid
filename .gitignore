@@ -1,0 +1,8 @@
+node_modules/
+# runtime state lives in %APPDATA%\paranoid or ~/.config/paranoid; never commit any of it
+config.json
+local-token
+*.dpapi
+tor/
+tor-data/
+.env*

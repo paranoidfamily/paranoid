@@ -1,0 +1,16 @@
+{
+  "schema": 2,
+  "network": "sepolia",
+  "circuitId": "zkapi-v2-concession-v2",
+  "setupId": "dev",
+  "sourceRevision": "4dfdd9d19618de055808e303128f024ee579a3d4",
+  "publicPath": "/zkapi/v2c/",
+  "files": {
+    "proofs/request.pk": "fb5f0ec0908b29aa5a3ba75c5cefda70ca0bc1d68da031c4a21ef63c0806af87",
+    "proofs/withdrawal.pk": "c04e0368a85378c268b68c9c18764b0d1f86bac98fb21d69e6e80918ce2e486f",
+    "proofs/request.vk": "95ea85413634f40b44314b8d9a0c2a79281c7a868eec13308fbe07dc1d0a8bd3",
+    "wasm/zkapi_browser_bg.wasm": "41031c1632c45018fd01dccaa883f5cbcb26df6616df5a8e0939620a3a3e4fff",
+    "browser-config.json": "803f176e327713d51112388f350f4e011f5606a1dd5068a0124eca2b74fa9fa6",
+    "assets/zkapiWasmWorker.js": "95c3dcec4d7b99007276837e8a3f00ba3458a0dfce1aa85d1867b6052725ba0e"
+  }
+}
