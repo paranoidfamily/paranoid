@@ -1,5 +1,7 @@
 # PARANOID local runtime
 
+[![verify](https://github.com/paranoidfamily/paranoid/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/paranoidfamily/paranoid/actions/workflows/verify.yml) — every push runs the full test suite, a real bubblewrap sandbox and a live Tor isolation check on GitHub-hosted Linux. Property-by-property evidence: https://www.paranoid.family/proof
+
 A loopback daemon that sits between you and a remote AI model. It sanitizes prompts on your machine, shows you exactly what will be sent, routes each conversation through its own Tor circuit, can run bounded cover traffic, and refuses to send anything when a layer your privacy profile requires is missing.
 
 The public site (https://www.paranoid.family) is marketing and documentation only. Prompts, keys and wallet state never go through it.
