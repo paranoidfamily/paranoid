@@ -13,6 +13,16 @@ The public site (https://www.paranoid.family) is marketing and documentation onl
 - Tor: `node scripts/install-tor.mjs --require-signature` downloads the official Tor Expert Bundle into the profile directory and refuses to install unless the SHA-256 matches the published sums file and that file's OpenPGP signature is valid for the Tor Browser signing key `EF6E286DDA85EA2A4BA7DE684E2C6E8793298290`.
 - To pay for inference, either an OpenRouter API key (entered in the UI, stored with Windows DPAPI; OpenRouter can link it to you), or the zkAPI wallet: a browser wallet such as MetaMask on Sepolia, test ETH (minimum deposit 0.001), and the operator's shared testnet password.
 
+## Install on Windows (one command)
+
+In PowerShell, as your normal user:
+
+```
+irm https://www.paranoid.family/install.ps1 | iex
+```
+
+[`installer/install.ps1`](installer/install.ps1) installs Node.js 24, this runtime, Tor and Ollama with a local model into `%LOCALAPPDATA%ProgramsPARANOID`, checking every download (SHA-256 against the published sums; Ollama by its Authenticode signature), then adds Start Menu shortcuts, start at sign-in and an uninstall entry. Settings, keys and Tor data stay in `%APPDATA%paranoid`.
+
 ## Run
 
 ```
