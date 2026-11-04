@@ -286,6 +286,9 @@ export function createServer(rt: Runtime, token: string) {
     } catch (e: any) {
       const [status, b] = errorBody(e);
       if (status === 500) log('http.error', { route: p, name: e?.name });
+      // An oversized body was not read to the end: answer, then close the
+      // connection so the client is not left blocked writing the rest.
+      if (status === 413 && !res.headersSent) { res.setHeader('connection', 'close'); res.once('finish', () => req.destroy()); }
       send(res, status, b);
     }
   });
