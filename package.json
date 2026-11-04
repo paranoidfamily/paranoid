@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/paranoidfamily/paranoid.git"
   },
-  "homepage": "https://paranoid2.vercel.app",
+  "homepage": "https://www.paranoid.family",
   "engines": {
     "node": ">=24"
   },

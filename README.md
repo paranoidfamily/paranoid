@@ -2,7 +2,7 @@
 
 A loopback daemon that sits between you and a remote AI model. It sanitizes prompts on your machine, shows you exactly what will be sent, routes each conversation through its own Tor circuit, can run bounded cover traffic, and refuses to send anything when a layer your privacy profile requires is missing.
 
-The public site (https://paranoid2.vercel.app) is marketing and documentation only. Prompts, keys and wallet state never go through it.
+The public site (https://www.paranoid.family) is marketing and documentation only. Prompts, keys and wallet state never go through it.
 
 ## Requirements (Windows, as tested)
 
