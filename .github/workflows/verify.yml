@@ -1,0 +1,47 @@
+# Public verification of PARANOID's privacy properties.
+# Every push runs the full test suite on a clean GitHub-hosted Linux machine,
+# including the privacy-regression tests and a live bubblewrap sandbox test
+# (real bwrap: network, host files and privileges must be unreachable).
+# Anyone can read the logs of each run in the Actions tab.
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: privacy tests (Linux, real bubblewrap)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install bubblewrap
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bubblewrap
+          # Ubuntu 24.04 restricts unprivileged user namespaces through AppArmor;
+          # bubblewrap needs them to create its sandbox.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          bwrap --version
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Run the test suite
+        env:
+          PARANOID_HOME: ${{ runner.temp }}/paranoid-home
+        run: node --test --test-reporter=spec "test/*.test.ts"
+      - name: Require the live bubblewrap test to have run
+        env:
+          PARANOID_HOME: ${{ runner.temp }}/paranoid-home
+        run: |
+          node --test --test-reporter=spec --test-name-pattern="live: real bubblewrap" test/bwrap.test.ts | tee live.txt
+          if grep -q "# SKIP" live.txt; then echo "live bubblewrap test was skipped"; exit 1; fi
+          grep -q "✔ live: real bubblewrap blocks network and host files" live.txt
