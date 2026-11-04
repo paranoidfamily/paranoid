@@ -38,10 +38,14 @@ export class CoverEngine {
   timer: NodeJS.Timeout | null = null;
   autoStop: NodeJS.Timeout | null = null;
   inflight = new Set<{ destroy: () => void }>();
+  onStop: (reason: string) => void = () => {};
 
   constructor(cfg: Config['cover'], proxy: { host: string; port: number }) { this.cfg = cfg; this.proxy = proxy; }
 
   configure(cfg: Config['cover']) { this.cfg = cfg; }
+
+  /** True while both hourly budgets have room. */
+  hasBudget() { const h = this.hourly(); return h.requests < this.cfg.maxRequestsPerHour && h.bytes < this.cfg.maxBytesPerHour; }
 
   private hourly() {
     const cut = Date.now() - 3_600_000;
@@ -74,6 +78,7 @@ export class CoverEngine {
     this.inflight.clear();
     this.workers = [];
     log('cover.stop', { reason, sent: this.sent });
+    this.onStop(reason);
   }
 
   private schedule() {

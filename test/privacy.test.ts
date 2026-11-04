@@ -181,3 +181,38 @@ test('cover traffic requires verified Tor and configured URLs; budgets stop it',
   assert.equal(rt.cover.stopReason, 'request budget reached');
   assert.equal(rt.cover.status().policy.inferenceSpendUsd, 0);
 });
+
+test('paranoid profile keeps cover traffic running; leaving it stops it; a user stop is respected', async () => {
+  const { rt } = await makeRuntime({ profile: 'paranoid', torVerified: true });
+  rt.config.update({ cover: { urls: ['https://example.org/'] } });
+  rt.cover.configure(rt.cfg.cover);
+  const starts: number[] = [];
+  rt.cover.start = function (this: any) { this.running = true; starts.push(Date.now()); } as any; // no real traffic in tests
+  rt.syncCover();
+  assert.equal(rt.cover.running, true, 'paranoid did not start cover traffic');
+  // auto-stop at the end of a window: restarted while paranoid is active
+  rt.cover.stop('auto-stop');
+  await new Promise(r => setImmediate(r));
+  assert.equal(rt.cover.running, true, 'cover traffic not renewed after auto-stop');
+  assert.equal(starts.length, 2);
+  // exhausted hourly budget: not restarted until the window frees
+  rt.cover.stop('request budget reached');
+  for (let i = 0; i < rt.cfg.cover.maxRequestsPerHour; i++) rt.cover.window.push({ t: Date.now(), bytes: 1 });
+  rt.syncCover();
+  assert.equal(rt.cover.running, false, 'budget ignored');
+  rt.cover.window = [];
+  rt.syncCover();
+  assert.equal(rt.cover.running, true);
+  // a stop by the user is not overridden
+  rt.coverUserStopped = true; rt.cover.stop('stopped by user');
+  rt.syncCover();
+  assert.equal(rt.cover.running, false, 'user stop overridden');
+  assert.ok((await rt.readiness('paranoid')).missing.includes('cover_traffic'));
+  // leaving paranoid stops what the profile started
+  rt.coverUserStopped = false; rt.syncCover();
+  rt.config.update({ profile: 'private' }); rt.syncCover();
+  assert.equal(rt.cover.running, false, 'cover traffic left running after leaving paranoid');
+  // no Tor: never started
+  rt.config.update({ profile: 'paranoid' }); rt.tor.state.verified = false; rt.syncCover();
+  assert.equal(rt.cover.running, false);
+});

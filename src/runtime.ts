@@ -50,8 +50,26 @@ export class Runtime {
     const c = config.value;
     this.tor = new TorManager(loopbackAddr(c.tor.socks), c.tor.exe, config.dir);
     this.cover = new CoverEngine(c.cover, loopbackAddr(c.tor.socks));
+    this.cover.onStop = reason => { if (reason === 'auto-stop') queueMicrotask(() => this.syncCover()); };
   }
   get cfg(): Config { return this.config.value; }
+
+  // ------------------------------------------------------------ cover traffic follows the profile
+  // Paranoid requires running cover traffic, so choosing it starts the engine and
+  // keeps it running (a new budget window after each auto-stop) while the profile
+  // is active; leaving the profile stops what the profile started. The hourly
+  // request and byte budgets still apply, and a stop by the user is respected:
+  // the profile then reports cover traffic as missing instead of restarting it.
+  coverAuto = false;
+  coverUserStopped = false;
+  syncCover() {
+    const want = this.cfg.profile === 'paranoid' && !this.coverUserStopped;
+    if (want && !this.cover.running && this.tor.state.verified && this.cfg.cover.urls.length && this.cover.hasBudget()) {
+      try { this.cover.start(true); this.coverAuto = true; log('cover.auto_start', { profile: this.cfg.profile }); } catch { /* reported by components() */ }
+    } else if (this.cfg.profile !== 'paranoid' && this.cover.running && this.coverAuto) {
+      this.cover.stop('profile changed'); this.coverAuto = false;
+    }
+  }
 
   // ------------------------------------------------------------ components
   async sanitizerState(force = false) {

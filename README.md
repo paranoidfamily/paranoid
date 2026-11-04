@@ -17,7 +17,7 @@ The public site (https://paranoid2.vercel.app) is marketing and documentation on
 git clone https://github.com/paranoidfamily/paranoid && cd paranoid
 npm install        # two pinned dependencies (QuickJS sandbox)
 npm start          # = node src/main.ts
-npm test           # 45 unit, integration and privacy-regression tests
+npm test           # 46 unit, integration and privacy-regression tests
 ```
 
 Open http://127.0.0.1:7700/. Settings → paste the OpenRouter key, pick a remote model, pick the local sanitizer model.
@@ -72,7 +72,7 @@ Sanitization reduces what the provider learns. It is not anonymization: the prov
 
 ## Cover traffic
 
-GET requests through Tor to HTTPS URLs you configure (none by default), Poisson arrivals, each worker on its own circuit, responses capped at 64 KiB. Added over the upstream engine: hourly request and byte budgets and an automatic stop. Decoys never contain your content and never call a paid API (inference spend: 0). It makes simple timing and volume analysis harder; it does not defeat an adversary who observes most of the network.
+GET requests through Tor to HTTPS URLs you configure (none by default), Poisson arrivals, each worker on its own circuit, responses capped at 64 KiB. Added over the upstream engine: hourly request and byte budgets and an automatic stop. Choosing the Paranoid profile starts cover traffic (once Tor is verified and URLs are configured) and renews it at each automatic stop while the profile stays selected; leaving the profile stops it. A budget that runs out pauses it until the hourly window frees, and a stop by you is respected: Paranoid then reports cover traffic as missing. Decoys never contain your content and never call a paid API (inference spend: 0). It makes simple timing and volume analysis harder; it does not defeat an adversary who observes most of the network.
 
 ## zkAPI payments
 

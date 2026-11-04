@@ -17,10 +17,12 @@ log('daemon.listen', { host, port, profile: config.value.profile });
 console.error(`\nPARANOID local runtime\n  UI        http://${host}:${port}/\n  OpenAI    http://${host}:${port}/v1  (bearer token in ${config.dir}${process.platform === 'win32' ? '\\' : '/'}local-token)\n  profile   ${config.value.profile}\n`);
 
 if (config.value.tor.manage && rt.tor.exe) {
-  rt.tor.start().then(() => rt.tor.verify()).catch(e => log('tor.start_failed', { name: e?.name }));
+  rt.tor.start().then(() => rt.tor.verify()).then(() => rt.syncCover()).catch(e => log('tor.start_failed', { name: e?.name }));
 } else {
-  rt.tor.verify().catch(() => {});
+  rt.tor.verify().then(() => rt.syncCover()).catch(() => {});
 }
+// keeps paranoid's cover traffic up when Tor comes back or a budget window frees
+setInterval(() => rt.syncCover(), 30_000).unref();
 
 function shutdown() {
   log('daemon.stop');

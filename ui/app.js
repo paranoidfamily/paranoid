@@ -128,7 +128,9 @@
     let access = null;
     try {
       if (status?.profile === 'paranoid' || $('zk-use').checked) {
-        if (!zk) throw new Error('Pay with zkAPI is on: start and connect the zkAPI wallet in Settings first.');
+        if (!zk) throw new Error(status?.profile === 'paranoid'
+          ? 'Paranoid mode pays only with zkAPI, never with your API key. In Settings: Start wallet, Connect MetaMask, then deposit Sepolia test ETH. Private mode uses your OpenRouter key instead.'
+          : 'Pay with zkAPI is on: start and connect the zkAPI wallet in Settings first.');
         reply.meta = 'creating a private zkAPI key…'; renderThread();
         // one proof-backed ephemeral key per conversation; the SDK rotates it when the conversation changes
         access = await zk.acquireInferenceAccess(conv.id);

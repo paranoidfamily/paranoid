@@ -169,6 +169,8 @@ export function createServer(rt: Runtime, token: string) {
         case 'POST /api/config/profile': {
           rt.config.update({ profile: body.profile });
           rt.modelsCache = null;
+          if (rt.cfg.profile === 'paranoid') rt.coverUserStopped = false;
+          rt.syncCover();
           log('config.profile', { profile: rt.cfg.profile });
           return send(res, 200, await rt.readiness());
         }
@@ -248,8 +250,8 @@ export function createServer(rt: Runtime, token: string) {
           rt.cover.configure(rt.cfg.cover);
           return send(res, 200, rt.cover.status());
         }
-        case 'POST /api/privacy/cover-traffic/start': { rt.cover.start(rt.tor.state.verified); return send(res, 200, rt.cover.status()); }
-        case 'POST /api/privacy/cover-traffic/stop': { rt.cover.stop('stopped by user'); return send(res, 200, rt.cover.status()); }
+        case 'POST /api/privacy/cover-traffic/start': { rt.coverUserStopped = false; rt.cover.start(rt.tor.state.verified); return send(res, 200, rt.cover.status()); }
+        case 'POST /api/privacy/cover-traffic/stop': { rt.coverUserStopped = true; rt.coverAuto = false; rt.cover.stop('stopped by user'); return send(res, 200, rt.cover.status()); }
 
         // ---- payment: the zkAPI wallet is the official browser SDK running in the local UI;
         // the daemon holds no note, balance or transaction state and only relays its traffic
