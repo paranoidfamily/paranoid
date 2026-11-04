@@ -14,7 +14,7 @@ The public site (https://paranoid2.vercel.app) is marketing and documentation on
 ## Run
 
 ```
-git clone <this repository> && cd paranoid
+git clone https://github.com/paranoidfamily/paranoid && cd paranoid
 npm install        # two pinned dependencies (QuickJS sandbox)
 npm start          # = node src/main.ts
 npm test           # 45 unit, integration and privacy-regression tests
